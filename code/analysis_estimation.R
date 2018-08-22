@@ -239,6 +239,7 @@ xx=(n1p+n1pq)
 # subset of points to plot at. Use simulations from continuous distributions to better show trends with n1p+n1pq
 w=which(pmin(fp,f1,f2,f3)> -0.5 & # remove simulations which failed to finish in time
           xx>0 & # t2r is indeterminate if xx==0
+          dist1 %in% xdist &
           !(N %in% c(1000,10000))) # use simulations where variables are sampled from 'continuous' distributions
 
 
@@ -342,7 +343,7 @@ if (normalise) {
 
 if (normalise) ylab=expression(paste(Delta,"T2R")) else ylab="T2R"
 
-plot(0,type="n",cex=0.5,col="gray",main=ptitle,
+plot(0,type="n",cex=0.5,col="gray",
      ylim=range(c(y1,y2,y3,y1s,y2s,y3s,yp)), xlim=range(xx), 
      xlab=expression(paste(n[1]^p, "+ n"[1]^{pq})),ylab=ylab)
 lines(sort(ux),y1[order(ux)],col="black",lwd=2,lty=ltx);
@@ -756,9 +757,13 @@ load(outfile)
 for (brca in c(FALSE,TRUE)) { # run BRCA|OCA, then OCA|BRCA
 
 # shorthands
-xv1=xbrca1; xv2=xbrca2; yv1=ybrca1; yv2=ybrca2; sub=sub_brca
-p=p_brca; q=p_oca; v1=i_brca1; v2=i_brca2; pi0=pi0_brca; sigma=sigma_brca; 
-
+if (brca) {
+ xv1=xbrca1; xv2=xbrca2; yv1=ybrca1; yv2=ybrca2; sub=sub_brca
+ p=p_brca; q=p_oca; v1=i_brca1; v2=i_brca2; pi0=pi0_brca; sigma=sigma_brca; 
+} else {
+ xv1=xoca1; xv2=xoca2; yv1=yoca1; yv2=yoca2; sub=sub_oca
+ p=p_oca; q=p_brca; v1=i_oca1; v2=i_oca2; pi0=pi0_oca; sigma=sigma_oca; 
+}
 
 k=length(sub); # number of values for which L-regions were computed
 xsub=3:2002 # set of indices of finite-valued points of L-curves
