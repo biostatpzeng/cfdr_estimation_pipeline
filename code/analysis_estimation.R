@@ -176,8 +176,8 @@ if (save_pdf) pdf(paste0(output_dir,"Lplot_setcut_F.pdf"),width=9,height=3)
 
 cx=seq(0.1,0.8,length.out=8)
 v1=vl(p,q,at=cx,adj=F);
-v2=vlx(p,q,pars=pars,at=cx,adj=F);
-v3=vly(p,q,at=cx,adj=F); 
+v2=vly(p,q,at=cx,adj=F); 
+v3=vlx(p,q,pars=pars,at=cx,adj=F);
 
 ex1=expression(atop({L^1}[S](alpha),alpha %in% ("0.1,0.2,...,0.8")))
 ex2=expression(atop({L^2}[S](alpha),alpha %in% ("0.1,0.2,...,0.8")))
@@ -384,8 +384,8 @@ ltx=1
 
 # Shorthands
 fp=t2r_p
-f1=t2r_cf2_fdr3b_adj0_dist1; 
-f2=t2r_cf2_fdr4_adj0_dist1; 
+f1=t2r_cf3_fdr3b_adj0_dist1; 
+f2=t2r_cf3_fdr4_adj0_dist1; # not actually method 4; this is local FDR using method 3b
 xx=(n1p+n1pq)
 
 
@@ -456,7 +456,7 @@ t2=t2r_cf2_fdr3b_adj0_dist1; # T2R using cFDR2, no adjustment
 t2s=t2r_cf2_fdr3b_adj1_dist1; # T2R using cFDR2, adjusted
 t3=t2r_cf3_fdr3b_adj0_dist1; # T2R using cFDR3, no adjustment
 t3s=t2r_cf3_fdr3b_adj1_dist1; # T2R using cFDR3, adjusted
-tx=t2r_cf2_fdr4_adj0_dist1; # T2R using local cfdr
+tx=t2r_cf3_fdr4_adj0_dist1; # T2R using local cfdr
 xx=n1p+n1pq
 
 # We only consider values with n1p+n1pq>0, since T2R is indeterminate if 
@@ -481,14 +481,14 @@ wilcox.test(tx[x1],tp[x1],paired=T,conf.int=T) # cfdr is NOT clearly more powerf
 # Comparisons between cFDR1, cFDR2, cFDR3
 wilcox.test(t1[x1],t2[x1],paired=T,conf.int=T) # cFDR1 is more powerful than cFDR2
 wilcox.test(t1[x1],t3[x1],paired=T,conf.int=T) # cFDR1 is more powerful than cFDR3
-wilcox.test(t2[x1],t3[x1],paired=T,conf.int=T) # cFDR2 is more powerful than cFDR3
+wilcox.test(t2[x1],t3[x1],paired=T,conf.int=T) # cFDR3 is more powerful than cFDR2
 
 
 
 # Comparisons between cFDR1s, cFDR2s, cFDR3s
 wilcox.test(t1s[x1],t2s[x1],paired=T,conf.int=T) # cFDR1s is more powerful than cFDR2s
 wilcox.test(t1s[x1],t3s[x1],paired=T,conf.int=T) # cFDR1s is more powerful than cFDR3s
-wilcox.test(t2s[x1],t3s[x1],paired=T,conf.int=T) # cFDR2s is more powerful than cFDR3s
+wilcox.test(t2s[x1],t3s[x1],paired=T,conf.int=T) # cFDR3s is more powerful than cFDR2s
 
 
 # Comparisons between cFDR1s, cFDR1, cFDR2s, cFDR2, cFDR3s, cFDR3.
