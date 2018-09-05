@@ -75,10 +75,10 @@ save_pdf=T
 ## Read data ##############################################################
 ###########################################################################
 
-# Load file from directory ./data/. See file ./data/cfdrsimmatrix_README 
+# Load files from directory ./data/. See file ./data/cfdrsimmatrix_README 
 #  for details.
 load(paste0(data_dir,"cfdrsimmatrix.RData"))
-
+load(paste0(data_dir,"cfdrsimmatrix_low_alpha.RData"))
 
 
 ###########################################################################
@@ -218,7 +218,7 @@ for (plot_type in 0:3) {
 xdist=plot_type
 if (plot_type==0) xdist=1:3
 
-normalise=T # set to F to draw absolute power rather than relative to t2r_p
+normalise=T # set to F to draw absolute power rather than relative to tdr_p
 ltx=1
 
 if (save_pdf) pdf(paste0(output_dir,"power_fdp3_",paste(xdist,collapse=""),".pdf"),width=4,height=4)
@@ -230,15 +230,15 @@ if (length(xdist)==3) ptitle="All"
 
 
 # shorthands
-fp=t2r_p
-f1=t2r_cf1_fdr3b_adj0_dist1 
-f2=t2r_cf2_fdr3b_adj0_dist1; 
-f3=t2r_cf3_fdr3b_adj0_dist1; 
+fp=tdr_p
+f1=tdr_cf1_fdr3b_adj0_dist1 
+f2=tdr_cf2_fdr3b_adj0_dist1; 
+f3=tdr_cf3_fdr3b_adj0_dist1; 
 xx=(n1p+n1pq)
 
 # subset of points to plot at. Use simulations from continuous distributions to better show trends with n1p+n1pq
 w=which(pmin(fp,f1,f2,f3)> -0.5 & # remove simulations which failed to finish in time
-          xx>0 & # t2r is indeterminate if xx==0
+          xx>0 & # tdr is indeterminate if xx==0
           dist1 %in% xdist &
           !(N %in% c(1000,10000))) # use simulations where variables are sampled from 'continuous' distributions
 
@@ -260,7 +260,7 @@ if (normalise) {
   y1=y1-yp; y2=y2-yp; y3=y3-yp; yp=yp-yp
 }
 
-if (normalise) ylab=expression(paste(Delta,"T2R")) else ylab="T2R"
+if (normalise) ylab=expression(paste(Delta,"(power)")) else ylab="Power"
 
 plot(0,type="n",cex=0.5,col="gray",main=ptitle,
      ylim=range(c(y1,y2,y3,yp)), xlim=range(xx), 
@@ -286,6 +286,93 @@ detach(rx)
 
 
 
+
+
+###########################################################################
+## Repeat of analysis above with low alpha (alpha=0.01) ###################
+###########################################################################
+
+suppressWarnings(rm(list=intersect(colnames(rx),ls())))
+if ("rx" %in% search()) detach(rx)
+if ("rx_low_alpha" %in% search()) detach(rx_low_alpha)
+
+attach(rx_low_alpha)
+
+for (plot_type in 0:3) {
+
+xdist=plot_type
+if (plot_type==0) xdist=1:3
+
+normalise=T # set to F to draw absolute power rather than relative to tdr_p
+ltx=1
+
+if (save_pdf) pdf(paste0(output_dir,"power_fdp3_low_alpha_",paste(xdist,collapse=""),".pdf"),width=4,height=4)
+
+if (xdist[1]==1) ptitle="Normal"
+if (xdist[1]==2) ptitle="t (3df)"
+if (xdist[1]==3) ptitle="Cauchy"
+if (length(xdist)==3) ptitle="All"
+
+
+# shorthands
+fp=tdr_p
+f1=tdr_cf1_fdr3b_adj0_dist1 
+f2=tdr_cf2_fdr3b_adj0_dist1; 
+f3=tdr_cf3_fdr3b_adj0_dist1; 
+xx=(n1p+n1pq)
+
+# subset of points to plot at. Use simulations from continuous distributions to better show trends with n1p+n1pq
+w=which(pmin(fp,f1,f2,f3)> -0.5 & # remove simulations which failed to finish in time
+          xx>0 & # tdr is indeterminate if xx==0
+          dist1 %in% xdist &
+          !(N %in% c(1000,10000))) # use simulations where variables are sampled from 'continuous' distributions
+
+
+fp=fp[w]; f1=f1[w]; f2=f2[w]; f3=f3[w]; xx=xx[w]
+
+sdx=0.15 # kernel for gaussian smoothing
+sdx=sdx*(max(xx)-min(xx)) # scale kernel
+
+ux=sort(unique(xx))
+y1=rep(0,length(ux)); y2=rep(0,length(ux)); y3=rep(0,length(ux)); yp=rep(0,length(ux))
+
+for (i in 1:length(ux)) {
+  wts=dnorm(xx-ux[i],sd=sdx); wts=wts/sum(wts)
+  y1[i]=sum(f1*wts);     y2[i]=sum(f2*wts);     y3[i]=sum(f3*wts); yp[i]=sum(fp*wts)
+}
+
+if (normalise) {
+  y1=y1-yp; y2=y2-yp; y3=y3-yp; yp=yp-yp
+}
+
+if (normalise) ylab=expression(paste(Delta,"(power)")) else ylab="Power"
+
+plot(0,type="n",cex=0.5,col="gray",main=ptitle,
+     ylim=range(c(y1,y2,y3,yp)), xlim=range(xx), 
+     xlab=expression(paste(n[1]^p, "+ n"[1]^{pq})),ylab=ylab)
+lines(sort(ux),y1[order(ux)],col="black",lwd=2,lty=ltx);
+lines(sort(ux),y2[order(ux)],col="darkgray",lwd=2,lty=ltx);
+lines(sort(ux),y3[order(ux)],col="lightgray",lwd=2,lty=ltx);
+lines(sort(ux),yp[order(ux)],col="black",lwd=2,lty=2);
+
+abline(h=0.1,col="black",lty=3)
+
+lp1=range(c(y1,y2,y3))
+legend( "bottomright", #0.45*max(xx), lp1[1]+ 0.4*(lp1[2]-lp1[1]),
+        c(expression(widehat(cFDR)^1),expression(widehat(cFDR)^2),expression(widehat(cFDR)^3)),
+        lty=c(1,1,1),col=c("black","darkgray","lightgray"),bg="white")
+
+
+if (save_pdf) dev.off()
+
+}
+
+detach(rx_low_alpha)
+
+
+
+
+
 ###########################################################################
 ## Comparison of power between adjusted and unadjusted cFDR ###############
 ###########################################################################
@@ -302,18 +389,18 @@ ltx2=2 # type of lines for adjusted
 if (save_pdf) pdf(paste0(output_dir,"power_fdp3_adj_123.pdf"),width=4,height=4)
 
 # shorthands
-fp=t2r_p
-f1=t2r_cf1_fdr3b_adj0_dist1 
-f2=t2r_cf2_fdr3b_adj0_dist1; 
-f3=t2r_cf3_fdr3b_adj0_dist1; 
-f1s=t2r_cf1_fdr3b_adj1_dist1 
-f2s=t2r_cf2_fdr3b_adj1_dist1; 
-f3s=t2r_cf3_fdr3b_adj1_dist1; 
+fp=tdr_p
+f1=tdr_cf1_fdr3b_adj0_dist1 
+f2=tdr_cf2_fdr3b_adj0_dist1; 
+f3=tdr_cf3_fdr3b_adj0_dist1; 
+f1s=tdr_cf1_fdr3b_adj1_dist1 
+f2s=tdr_cf2_fdr3b_adj1_dist1; 
+f3s=tdr_cf3_fdr3b_adj1_dist1; 
 xx=(n1p+n1pq)
 
 # subset of points to plot at. Use simulations from continuous distributions to better show trends with n1p+n1pq
 w=which(pmin(fp,f1,f2,f3,f1s,f2s,f3s)> -0.5 & # remove simulations which failed to finish in time
-          xx>0 & # t2r is indeterminate if xx==0
+          xx>0 & # tdr is indeterminate if xx==0
           !(N %in% c(1000,10000))) # use simulations where variables are sampled from 'continuous' distributions
 
 
@@ -341,7 +428,7 @@ if (normalise) {
   yp=yp-yp
 }
 
-if (normalise) ylab=expression(paste(Delta,"T2R")) else ylab="T2R"
+if (normalise) ylab=expression(paste(Delta,"(power)")) else ylab="Power"
 
 plot(0,type="n",cex=0.5,col="gray",
      ylim=range(c(y1,y2,y3,y1s,y2s,y3s,yp)), xlim=range(xx), 
@@ -383,15 +470,15 @@ normalise=T
 ltx=1
 
 # Shorthands
-fp=t2r_p
-f1=t2r_cf3_fdr3b_adj0_dist1; 
-f2=t2r_cf3_fdr4_adj0_dist1; # not actually method 4; this is local FDR using method 3b
+fp=tdr_p
+f1=tdr_cf3_fdr3b_adj0_dist1; 
+f2=tdr_cf3_fdr4_adj0_dist1; # not actually method 4; this is local FDR using method 3b
 xx=(n1p+n1pq)
 
 
 # subset of points to plot at. Use simulations from continuous distributions to better show trends with n1p+n1pq
 w=which(pmin(f1,f2,fp) > -0.5 & # remove simulations which failed to finish in time
-          xx>0 & # t2r is indeterminate if xx==0
+          xx>0 & # tdr is indeterminate if xx==0
           !(N %in% c(1000,10000))) # use simulations where variables are sampled from 'continuous' distributions
 
 fp=fp[w]; f1=f1[w]; f2=f2[w]; xx=xx[w]
@@ -413,7 +500,7 @@ if (normalise) {
 
 if (save_pdf) pdf(paste0(output_dir,"power_local.pdf"),width=4,height=4)
 
-if (normalise) ylab=expression(paste(Delta,"T2R")) else ylab="T2R"
+if (normalise) ylab=expression(paste(Delta,"(power)")) else ylab="Power"
 plot(0,type="n",cex=0.5,col="gray",ylim=range(c(y1,y2,yp)), xlim=range(xx), xlab=expression(paste(n[1]^p, "+ n"[1]^{pq})),ylab=ylab)
 lines(sort(ux),y1[order(ux)],col="black",lwd=2,lty=ltx);
 lines(sort(ux),y2[order(ux)],col="darkgray",lwd=2,lty=ltx);
@@ -436,11 +523,11 @@ detach(rx)
 
 
 ###########################################################################
-## Numerical T2R comparison between methods ###############################
+## Numerical TDR comparison between methods ###############################
 ###########################################################################
 
 # The output of this section of code is saved in ./outputs as a text file
-#  ./outputs/T2R_comparison.txt.
+#  ./outputs/TDR_comparison.txt.
 
 suppressWarnings(rm(list=intersect(colnames(rx),ls())))
 if ("rx" %in% search()) detach(rx)
@@ -449,22 +536,22 @@ attach(rx)
 
 
 # Shorthands. 
-tp=t2r_p; # T2R for p-values (BH procedure, for reference)
-t1=t2r_cf1_fdr3b_adj0_dist1; # T2R using cFDR1, no adjustment
-t1s=t2r_cf1_fdr3b_adj1_dist1; # T2R using cFDR1, adjusted
-t2=t2r_cf2_fdr3b_adj0_dist1; # T2R using cFDR2, no adjustment
-t2s=t2r_cf2_fdr3b_adj1_dist1; # T2R using cFDR2, adjusted
-t3=t2r_cf3_fdr3b_adj0_dist1; # T2R using cFDR3, no adjustment
-t3s=t2r_cf3_fdr3b_adj1_dist1; # T2R using cFDR3, adjusted
-tx=t2r_cf3_fdr4_adj0_dist1; # T2R using local cfdr
+tp=tdr_p; # TDR for p-values (BH procedure, for reference)
+t1=tdr_cf1_fdr3b_adj0_dist1; # TDR using cFDR1, no adjustment
+t1s=tdr_cf1_fdr3b_adj1_dist1; # TDR using cFDR1, adjusted
+t2=tdr_cf2_fdr3b_adj0_dist1; # TDR using cFDR2, no adjustment
+t2s=tdr_cf2_fdr3b_adj1_dist1; # TDR using cFDR2, adjusted
+t3=tdr_cf3_fdr3b_adj0_dist1; # TDR using cFDR3, no adjustment
+t3s=tdr_cf3_fdr3b_adj1_dist1; # TDR using cFDR3, adjusted
+tx=tdr_cf3_fdr4_adj0_dist1; # TDR using local cfdr
 xx=n1p+n1pq
 
-# We only consider values with n1p+n1pq>0, since T2R is indeterminate if 
+# We only consider values with n1p+n1pq>0, since TDR is indeterminate if 
 #  n1p+n1pq==0
 x1=which(xx>0)
 
 
-# T2R comparison between methods, using paired Wilcoxon rank sum tests.
+# TDR comparison between methods, using paired Wilcoxon rank sum tests.
 #  The sign of the difference is given by the sign of the pseudomedian;
 #  that is, if the pseudomedian of wilcox.test(x,y,...) is >0, then 
 #  in general x>y.
@@ -498,7 +585,7 @@ wilcox.test(t3s[x1],t3[x1],paired=T,conf.int=T) # cFDR3s is more powerful than c
 
 
 # It is difficult to sensibly calculate the power of a Wilcoxon test; however,
-#  the test is powerful. Approximately 25% of T2Rs are equal in each comparison. We show below
+#  the test is powerful. Approximately 25% of TDRs are equal in each comparison. We show below
 #  that we have approximately 90% power to detect a 2% difference in 
 #  P(FDP(method A) > FDP(method B)) and P(FDP(method A) < FDP(method B))
 delta=0.04 # P(FDP(method A) > FDP(method B)) - P(FDP(method A) < FDP(method B))
@@ -533,7 +620,7 @@ v1=vlxl(p0,q0,pars=pars,indices=1,scale="z") # compute L-regions
 
 plot(0,xlim=c(0,8),ylim=c(0,8),type="n",xaxs="i",yaxs="i",
      xlab=expression("Z"[P]),ylab=expression("Z"[Q]),
-     main=expression(widehat("cfdr")^2))
+     main=expression(widehat("cfdr")^3))
 lines(v1$x[1,],v1$y)
 
 for (i in 1:6) {
@@ -578,7 +665,7 @@ v1=vlx(p0,q0,pars=pars,indices=1,scale="z",adj=0) # compute L regions
 
 plot(0,xlim=c(0,8),ylim=c(0,8),type="n",xaxs="i",yaxs="i",
      xlab=expression("Z"[P]),ylab=expression("Z"[Q]),
-     main=expression(widehat("cFDR")^2))
+     main=expression(widehat("cFDR")^3))
 lines(v1$x[1,],v1$y)
 
 for (i in 1:6) {
@@ -878,7 +965,7 @@ hcng=c(hcng,length(unique(gene[h1])))
 if (brca) header="BRCA|OCA" else header="OCA|BRCA"
 if (brca) plot_name=paste0("twas_fdrcut_brca.pdf") else plot_name=paste0("twas_fdrcut_oca.pdf")
 
-if (save_pdf) pdf(paste0(output_dir,plot_name))
+if (save_pdf) pdf(paste0(output_dir,plot_name),width=5,height=5)
 
 mm=c(hcng/hpng,hcnt/hpnt)
 mh=range(mm[which(is.finite(mm))])

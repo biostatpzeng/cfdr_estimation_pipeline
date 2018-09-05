@@ -8,9 +8,11 @@
 *--  2018                                                     --*
 *****************************************************************
 
-This folder contains two .RData files and two .dat files
+This folder contains three .RData files and two .dat files
 
 cfdrsimmatrix.RData: a matrix of simulation results
+cfdrsimmatrix_low_alpha.RData: a matrix of simulation results at
+  alpha=0.01 instead of 0.1
 twas_summary.RData: R objects relating to cFDR analysis of TWAS
   data.
 
@@ -65,12 +67,12 @@ protocol'. Simulations are oversampled with n1p+n1pq=0.
   distribution of Q|P>0.5. {x} can be in {pi0,sigma}.
 [21-214] {A}_cf{B}_fdr{C}_adj{D}_dist{E}_fold{F}: results 
   from simulations. 
-  {A}: either fdp or t2r
+  {A}: either fdp or tdr
   {B}: 1,2, or 3: type of cfdr estimator. Paper 1 only uses B=1.
     Other estimators are relevant to paper 2.
   {C}: 1,2,3,3b, or 4: type of FDR control method. Method 4 
     (leave-one-out) is deprecated for B=2/3, but C=4 is used to
-    code for 'local' fdp/t2r control using method 3b for B=2.
+    code for 'local' fdp/tdr control using method 3b for B=2.
   {D}: 0 or 1: include estimate of Pr(Q<q|HP0) in estimator of
     cFDR. Only relevant for paper 2.
   {E}: 1 or 2: distribution of P,Q|HP0 used for integration 
@@ -78,10 +80,25 @@ protocol'. Simulations are oversampled with n1p+n1pq=0.
     estimated distribution parametrised by pi0_null,sigma_null,
     dist2.
   {F}: 1,2, or 3: fold, only relevant if C=3. Corresponds to
-    within-fold FDP/T2R
-  Also contains fdp_p (column 21) and t2r_p (column 118) 
-    corresponding to FDP and T2R of the Benjamini-Hochberg 
+    within-fold FDP/TDR
+  Also contains fdp_p (column 21) and tdr_p (column 118) 
+    corresponding to FDP and TDR of the Benjamini-Hochberg 
     method applied to p-values.
+
+
+
+### cfdrsimmatrix_low_alpha.RData ###
+
+This file contains a single object called rx_low_alpha. This is
+identical to the object rx in cfdrsimmatrix.RData but uses an 
+FDR control level of alpha=0.01 instead of 0.1. Since these 
+simulations are only used for comparison of type 2 error rate 
+between methods, only simulations drawing parameters from 
+continuous distributions are included. Each row of the simulation
+can be reproduced from the random seed by replacing both 
+occurrences of 'alpha=0.1' with 'alpha=0.01 in 
+../code/run_simulation.
+
 
 
 ### twas_summary.RData ###

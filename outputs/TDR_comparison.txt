@@ -1,0 +1,270 @@
+> ###########################################################################
+> ## Numerical TDR comparison between methods ###############################
+> ###########################################################################
+> 
+> # The output of this section of code is saved in ./outputs as a text file
+> #  ./outputs/TDR_comparison.txt.
+> 
+> suppressWarnings(rm(list=intersect(colnames(rx),ls())))
+> if ("rx" %in% search()) detach(rx)
+> attach(rx)
+> 
+> 
+> 
+> # Shorthands. 
+> tp=tdr_p; # TDR for p-values (BH procedure, for reference)
+> t1=tdr_cf1_fdr3b_adj0_dist1; # TDR using cFDR1, no adjustment
+> t1s=tdr_cf1_fdr3b_adj1_dist1; # TDR using cFDR1, adjusted
+> t2=tdr_cf2_fdr3b_adj0_dist1; # TDR using cFDR2, no adjustment
+> t2s=tdr_cf2_fdr3b_adj1_dist1; # TDR using cFDR2, adjusted
+> t3=tdr_cf3_fdr3b_adj0_dist1; # TDR using cFDR3, no adjustment
+> t3s=tdr_cf3_fdr3b_adj1_dist1; # TDR using cFDR3, adjusted
+> tx=tdr_cf3_fdr4_adj0_dist1; # TDR using local cfdr
+> xx=n1p+n1pq
+> 
+> # We only consider values with n1p+n1pq>0, since TDR is indeterminate if 
+> #  n1p+n1pq==0
+> x1=which(xx>0)
+> 
+> 
+> # TDR comparison between methods, using paired Wilcoxon rank sum tests.
+> #  The sign of the difference is given by the sign of the pseudomedian;
+> #  that is, if the pseudomedian of wilcox.test(x,y,...) is >0, then 
+> #  in general x>y.
+> 
+> # Comparisons between cFDR type and p-value
+> wilcox.test(t1[x1],tp[x1],paired=T,conf.int=T) # cFDR1 is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1[x1] and tp[x1]
+V = 46099000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.01352758 0.01438871
+sample estimates:
+(pseudo)median 
+    0.01394808 
+
+> wilcox.test(t2[x1],tp[x1],paired=T,conf.int=T) # cFDR2 is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t2[x1] and tp[x1]
+V = 36763000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.009206294 0.009997134
+sample estimates:
+(pseudo)median 
+   0.009596683 
+
+> wilcox.test(t3[x1],tp[x1],paired=T,conf.int=T) # cFDR3 is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t3[x1] and tp[x1]
+V = 37912000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.01322866 0.01415798
+sample estimates:
+(pseudo)median 
+    0.01370533 
+
+> wilcox.test(t1s[x1],tp[x1],paired=T,conf.int=T) # cFDR1s is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1s[x1] and tp[x1]
+V = 48487000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.01650595 0.01761334
+sample estimates:
+(pseudo)median 
+    0.01710219 
+
+> wilcox.test(t2s[x1],tp[x1],paired=T,conf.int=T) # cFDR2s is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t2s[x1] and tp[x1]
+V = 41217000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.01323716 0.01437318
+sample estimates:
+(pseudo)median 
+    0.01379174 
+
+> wilcox.test(t3s[x1],tp[x1],paired=T,conf.int=T) # cFDR3s is more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t3s[x1] and tp[x1]
+V = 41836000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.01660963 0.01779480
+sample estimates:
+(pseudo)median 
+    0.01719811 
+
+> wilcox.test(tx[x1],tp[x1],paired=T,conf.int=T) # cfdr is NOT clearly more powerful than p-value
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  tx[x1] and tp[x1]
+V = 27626000, p-value = 0.01284
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -0.0025601191 -0.0001734526
+sample estimates:
+(pseudo)median 
+  -0.001257126 
+
+> 
+> # Comparisons between cFDR1, cFDR2, cFDR3
+> wilcox.test(t1[x1],t2[x1],paired=T,conf.int=T) # cFDR1 is more powerful than cFDR2
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1[x1] and t2[x1]
+V = 27356000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.005741358 0.006150350
+sample estimates:
+(pseudo)median 
+   0.005968854 
+
+> wilcox.test(t1[x1],t3[x1],paired=T,conf.int=T) # cFDR1 is more powerful than cFDR3
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1[x1] and t3[x1]
+V = 20820000, p-value = 4.821e-15
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.0005742245 0.0010892723
+sample estimates:
+(pseudo)median 
+  0.0008276998 
+
+> wilcox.test(t2[x1],t3[x1],paired=T,conf.int=T) # cFDR3 is more powerful than cFDR2
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t2[x1] and t3[x1]
+V = 12376000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -0.004831473 -0.004402823
+sample estimates:
+(pseudo)median 
+  -0.004676619 
+
+> 
+> 
+> 
+> # Comparisons between cFDR1s, cFDR2s, cFDR3s
+> wilcox.test(t1s[x1],t2s[x1],paired=T,conf.int=T) # cFDR1s is more powerful than cFDR2s
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1s[x1] and t2s[x1]
+V = 24598000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.004620433 0.004970554
+sample estimates:
+(pseudo)median 
+    0.00484787 
+
+> wilcox.test(t1s[x1],t3s[x1],paired=T,conf.int=T) # cFDR1s is more powerful than cFDR3s
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1s[x1] and t3s[x1]
+V = 21177000, p-value = 0.0008477
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.0001009205 0.0005429097
+sample estimates:
+(pseudo)median 
+  0.0002893454 
+
+> wilcox.test(t2s[x1],t3s[x1],paired=T,conf.int=T) # cFDR3s is more powerful than cFDR2s
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t2s[x1] and t3s[x1]
+V = 14991000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -0.004065147 -0.003401192
+sample estimates:
+(pseudo)median 
+  -0.003718411 
+
+> 
+> 
+> # Comparisons between cFDR1s, cFDR1, cFDR2s, cFDR2, cFDR3s, cFDR3.
+> wilcox.test(t1s[x1],t1[x1],paired=T,conf.int=T) # cFDR1s is more powerful than cFDR1
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t1s[x1] and t1[x1]
+V = 18880000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.005282257 0.006023252
+sample estimates:
+(pseudo)median 
+   0.005655331 
+
+> wilcox.test(t2s[x1],t2[x1],paired=T,conf.int=T) # cFDR2s is more powerful than cFDR2
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t2s[x1] and t2[x1]
+V = 19370000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.006868192 0.007461455
+sample estimates:
+(pseudo)median 
+   0.007212997 
+
+> wilcox.test(t3s[x1],t3[x1],paired=T,conf.int=T) # cFDR3s is more powerful than cFDR3
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  t3s[x1] and t3[x1]
+V = 18596000, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ 0.006441740 0.007100553
+sample estimates:
+(pseudo)median 
+   0.006768034 
+
+> 
+> 
+> # It is difficult to sensibly calculate the power of a Wilcoxon test; however,
+> #  the test is powerful. Approximately 25% of TDRs are equal in each comparison. We show below
+> #  that we have approximately 90% power to detect a 2% difference in 
+> #  P(FDP(method A) > FDP(method B)) and P(FDP(method A) < FDP(method B))
+> delta=0.04 # P(FDP(method A) > FDP(method B)) - P(FDP(method A) < FDP(method B))
+> equal=0.25 # P(FDP(method A)=FDP(method B))
+> n=length(x1); np=0; ntrial=1000; P=0.05; set.seed(1)
+> for (i in 1:ntrial) {
++  s=sample(c(-1,0,1),n,prob=c((1-equal-delta)/2,equal,(1-equal+delta)/2),rep=T)
++  pw=wilcox.test(s,rep(0,n),paired=T)$p.value; if (pw< P) np=np+1
++ }
+> np/ntrial # power to detect difference
+[1] 1
+> 
+> detach(rx)
+
