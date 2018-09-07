@@ -1,8 +1,10 @@
 *****************************************************************
 *--  Summary of data sets                                     --*
 *--                                                           --*
-*--  'New estimators for conditional false discovery rates    --*
-*--    improve power and smoothness'                          --*
+*--  'Improved consistency in estimates of conditional false  --*
+*--    discovery rates increases power relative to both       --*
+*--    existing methods and parametric estimators             --*
+*--                                                           --*
 *--                                                           --*
 *--  James Liley and Chris Wallace                            --*
 *--  2018                                                     --*

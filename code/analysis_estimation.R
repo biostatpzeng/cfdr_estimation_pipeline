@@ -1,7 +1,8 @@
 ###########################################################################
 ##                                                                       ##
-## New estimators for conditional false discovery rates improve power    ##
-##  and smoothness                                                       ##
+## Improved consistency in estimates of conditional false discovery      ##
+##  rates increases power relative to both existing methods and          ##
+##  parametric estimators                                                ##
 ##                                                                       ##
 ## Analyse results of simulations, draw plots, and analyse TWAS data     ##
 ##                                                                       ##
@@ -25,9 +26,9 @@
 #  ./data/cfdrsimmatrix.RData.
 #
 # Input data from the TWAS analysis is included in the R object 
-#  ./data/twas_data.RData. This file contains XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+#  ./data/twas_data.RData. 
 #
-# The analysis of TWAS data runs quite slowly. XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX It will only run if the 
+# The analysis of TWAS data runs quite slowly. It will only run if the 
 #  file ./data/gwas_cfdr_data.RData does not already exist. A copy of
 #  this file is already included in the ./data directory. To re-run the 
 #  GWAS analysis, delete this file and run this script. The file 
